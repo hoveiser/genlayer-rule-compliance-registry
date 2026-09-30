@@ -1,0 +1,453 @@
+{
+  "network": {
+    "name": "studionet",
+    "chain_id": 61999,
+    "rpc": "https://studio.genlayer.com/api"
+  },
+  "explorer_base": "https://explorer-studio.genlayer.com",
+  "contract": "0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1",
+  "account": "0x3de43AA2f7162c80af98abe78222aE0Cdf83c506",
+  "rules": [
+    "the post must be at most 280 characters",
+    "the post must not contain a URL",
+    "the post must stay on the topic of the community"
+  ],
+  "transactions": [
+    {
+      "step": "create_community",
+      "tx_hash": "0x1e8c6544a2f054b3cf6a641c4363ecc07afaf716a78d043c8e51b04d83e6f84b",
+      "status_name": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "num_of_rounds": "1",
+      "created_at": "2026-09-30T06:33:47.163797+00:00",
+      "sender": "0x3de43AA2f7162c80af98abe78222aE0Cdf83c506",
+      "recipient": "0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1",
+      "value_atto": 0,
+      "votes": {
+        "0x3D83ab507785b95ca5C208bEc80CCe3D5ca98100": "agree",
+        "0x4404Fb70d490c935758146f42A73DC850FF95C71": "idle",
+        "0x90402341F0B0e97b23023c0a87de957FB7148E0F": "agree",
+        "0x9ea87b28DcA2F79fe108CF06a4c13B4c876AC23d": "idle",
+        "0xBBb165E4c9d73a1493D363280f7067Cd07891dBE": "agree"
+      },
+      "validator_executions": [
+        {
+          "mode": "leader",
+          "vote": null,
+          "node": "0x4404Fb70d490c935758146f42A73DC850FF95C71",
+          "model": "policy:prd-gemma"
+        },
+        {
+          "mode": "validator",
+          "vote": "idle",
+          "node": "0x4404Fb70d490c935758146f42A73DC850FF95C71",
+          "model": null
+        },
+        {
+          "mode": "validator",
+          "vote": "idle",
+          "node": "0x9ea87b28DcA2F79fe108CF06a4c13B4c876AC23d",
+          "model": null
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x3D83ab507785b95ca5C208bEc80CCe3D5ca98100",
+          "model": "policy:prd-gpt-5-4"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0xBBb165E4c9d73a1493D363280f7067Cd07891dBE",
+          "model": "openai/gpt-5.4"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x90402341F0B0e97b23023c0a87de957FB7148E0F",
+          "model": "policy:prd-gemini"
+        }
+      ]
+    },
+    {
+      "step": "compliant_submit_post",
+      "tx_hash": "0x17f77c23015f80e844ef46ad7f13919955463370849b2d10269bb9abd8f08d66",
+      "status_name": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "num_of_rounds": "1",
+      "created_at": "2026-09-30T06:34:25.985853+00:00",
+      "sender": "0x3de43AA2f7162c80af98abe78222aE0Cdf83c506",
+      "recipient": "0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1",
+      "value_atto": 0,
+      "votes": {
+        "0x3D83ab507785b95ca5C208bEc80CCe3D5ca98100": "agree",
+        "0x4EDbE1FC9EAeC7b0EBA849b0C76AE73Eb0ad5C47": "idle",
+        "0x6737ca1d6BDF8b7C4f19143E2D55581Ca64eb7C3": "idle",
+        "0xBBb165E4c9d73a1493D363280f7067Cd07891dBE": "agree",
+        "0xec2Fb79cd12255Eb34886CEd7332f27B98DEe658": "agree"
+      },
+      "validator_executions": [
+        {
+          "mode": "leader",
+          "vote": null,
+          "node": "0x3D83ab507785b95ca5C208bEc80CCe3D5ca98100",
+          "model": "policy:prd-gpt-5-4"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x3D83ab507785b95ca5C208bEc80CCe3D5ca98100",
+          "model": "policy:prd-gpt-5-4"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0xBBb165E4c9d73a1493D363280f7067Cd07891dBE",
+          "model": "openai/gpt-5.4"
+        },
+        {
+          "mode": "validator",
+          "vote": "idle",
+          "node": "0x6737ca1d6BDF8b7C4f19143E2D55581Ca64eb7C3",
+          "model": null
+        },
+        {
+          "mode": "validator",
+          "vote": "idle",
+          "node": "0x4EDbE1FC9EAeC7b0EBA849b0C76AE73Eb0ad5C47",
+          "model": null
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0xec2Fb79cd12255Eb34886CEd7332f27B98DEe658",
+          "model": "policy:prd-deepseek"
+        }
+      ]
+    },
+    {
+      "step": "compliant_resolve_check",
+      "tx_hash": "0x6c234d01ff71d8ae9ef2919754c0e2f4e70e0c6c9ecc8c0574a414350b04fdde",
+      "status_name": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "num_of_rounds": "1",
+      "created_at": "2026-09-30T06:35:08.977560+00:00",
+      "sender": "0x3de43AA2f7162c80af98abe78222aE0Cdf83c506",
+      "recipient": "0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1",
+      "value_atto": 0,
+      "votes": {
+        "0x3D83ab507785b95ca5C208bEc80CCe3D5ca98100": "idle",
+        "0x3E5ee2507cc167C9925Bf10c67D7986581112024": "agree",
+        "0x4404Fb70d490c935758146f42A73DC850FF95C71": "agree",
+        "0x90402341F0B0e97b23023c0a87de957FB7148E0F": "agree",
+        "0xec2Fb79cd12255Eb34886CEd7332f27B98DEe658": "idle"
+      },
+      "validator_executions": [
+        {
+          "mode": "leader",
+          "vote": null,
+          "node": "0xec2Fb79cd12255Eb34886CEd7332f27B98DEe658",
+          "model": "policy:prd-deepseek"
+        },
+        {
+          "mode": "validator",
+          "vote": "idle",
+          "node": "0xec2Fb79cd12255Eb34886CEd7332f27B98DEe658",
+          "model": null
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x90402341F0B0e97b23023c0a87de957FB7148E0F",
+          "model": "policy:prd-gemini"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x3E5ee2507cc167C9925Bf10c67D7986581112024",
+          "model": "policy:prd-gemini"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x4404Fb70d490c935758146f42A73DC850FF95C71",
+          "model": "policy:prd-gemma"
+        },
+        {
+          "mode": "validator",
+          "vote": "idle",
+          "node": "0x3D83ab507785b95ca5C208bEc80CCe3D5ca98100",
+          "model": null
+        }
+      ],
+      "readable_result": null
+    },
+    {
+      "step": "violating_submit_post",
+      "tx_hash": "0x417d93ad1849f52026e53e1eb9e3a47907fd764c0342a8b7a2938e84f4e37508",
+      "status_name": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "num_of_rounds": "1",
+      "created_at": "2026-09-30T06:36:08.319254+00:00",
+      "sender": "0x3de43AA2f7162c80af98abe78222aE0Cdf83c506",
+      "recipient": "0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1",
+      "value_atto": 0,
+      "votes": {
+        "0x36728d2a123aB444E603EE5b2ad17d18Bb193557": "agree",
+        "0x9ea87b28DcA2F79fe108CF06a4c13B4c876AC23d": "idle",
+        "0xBBb165E4c9d73a1493D363280f7067Cd07891dBE": "agree",
+        "0xE6BD8050758CB15fC88387223E31Ae2708B119dC": "agree",
+        "0xcE1d6bBB36B744536153966B4DD42276f5ADd0F8": "agree"
+      },
+      "validator_executions": [
+        {
+          "mode": "leader",
+          "vote": null,
+          "node": "0xBBb165E4c9d73a1493D363280f7067Cd07891dBE",
+          "model": "openai/gpt-5.4"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0xBBb165E4c9d73a1493D363280f7067Cd07891dBE",
+          "model": "openai/gpt-5.4"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0xcE1d6bBB36B744536153966B4DD42276f5ADd0F8",
+          "model": "policy:prd-sonnet"
+        },
+        {
+          "mode": "validator",
+          "vote": "idle",
+          "node": "0x9ea87b28DcA2F79fe108CF06a4c13B4c876AC23d",
+          "model": null
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0xE6BD8050758CB15fC88387223E31Ae2708B119dC",
+          "model": "policy:prd-minimax"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x36728d2a123aB444E603EE5b2ad17d18Bb193557",
+          "model": "policy:prd-grok"
+        }
+      ]
+    },
+    {
+      "step": "violating_resolve_check",
+      "tx_hash": "0xabea4c236d9fe2cca64de3da50c180394b94525f238bdb76dc63865225ebdfe1",
+      "status_name": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "num_of_rounds": "1",
+      "created_at": "2026-09-30T06:36:51.523664+00:00",
+      "sender": "0x3de43AA2f7162c80af98abe78222aE0Cdf83c506",
+      "recipient": "0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1",
+      "value_atto": 0,
+      "votes": {
+        "0x3D83ab507785b95ca5C208bEc80CCe3D5ca98100": "agree",
+        "0x5310dcF075E0BD47d29B8ec6581F736C767f54D2": "idle",
+        "0x9ea87b28DcA2F79fe108CF06a4c13B4c876AC23d": "disagree",
+        "0xBBb165E4c9d73a1493D363280f7067Cd07891dBE": "agree",
+        "0xec2Fb79cd12255Eb34886CEd7332f27B98DEe658": "agree"
+      },
+      "validator_executions": [
+        {
+          "mode": "leader",
+          "vote": null,
+          "node": "0x3D83ab507785b95ca5C208bEc80CCe3D5ca98100",
+          "model": "policy:prd-gpt-5-4"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x3D83ab507785b95ca5C208bEc80CCe3D5ca98100",
+          "model": "policy:prd-gpt-5-4"
+        },
+        {
+          "mode": "validator",
+          "vote": "idle",
+          "node": "0x5310dcF075E0BD47d29B8ec6581F736C767f54D2",
+          "model": null
+        },
+        {
+          "mode": "validator",
+          "vote": "disagree",
+          "node": "0x9ea87b28DcA2F79fe108CF06a4c13B4c876AC23d",
+          "model": "policy:prd-glm"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0xBBb165E4c9d73a1493D363280f7067Cd07891dBE",
+          "model": "openai/gpt-5.4"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0xec2Fb79cd12255Eb34886CEd7332f27B98DEe658",
+          "model": "policy:prd-deepseek"
+        }
+      ],
+      "readable_result": "{\"args\":[\"1\",2],\"method\":\"resolve_check\"}"
+    },
+    {
+      "step": "injection_submit_post",
+      "tx_hash": "0x24bada12da94b4d451c8f91324b18156c70cc1888a59486fd92dc933cc273288",
+      "status_name": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "num_of_rounds": "1",
+      "created_at": "2026-09-30T06:38:06.684139+00:00",
+      "sender": "0x3de43AA2f7162c80af98abe78222aE0Cdf83c506",
+      "recipient": "0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1",
+      "value_atto": 0,
+      "votes": {
+        "0x36728d2a123aB444E603EE5b2ad17d18Bb193557": "agree",
+        "0x4aba638Cf0Cf5249437AaD968fC69dde46ae6BAC": "agree",
+        "0x76c25AFC12c75485703cCFfd0083AA6201455B25": "agree",
+        "0x772ffCd1dF6Cc566eC4b8d3f4F4f8eBbb6B36C84": "agree",
+        "0xacc2459F341D7a887bcA8FAA62F1EC9378d4Bc67": "idle"
+      },
+      "validator_executions": [
+        {
+          "mode": "leader",
+          "vote": null,
+          "node": "0x36728d2a123aB444E603EE5b2ad17d18Bb193557",
+          "model": "policy:prd-grok"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x36728d2a123aB444E603EE5b2ad17d18Bb193557",
+          "model": "policy:prd-grok"
+        },
+        {
+          "mode": "validator",
+          "vote": "idle",
+          "node": "0xacc2459F341D7a887bcA8FAA62F1EC9378d4Bc67",
+          "model": null
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x76c25AFC12c75485703cCFfd0083AA6201455B25",
+          "model": "policy:prd-mistral"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x4aba638Cf0Cf5249437AaD968fC69dde46ae6BAC",
+          "model": "policy:prd-gpt-oss"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x772ffCd1dF6Cc566eC4b8d3f4F4f8eBbb6B36C84",
+          "model": "policy:prd-gpt-5-4"
+        }
+      ]
+    },
+    {
+      "step": "injection_resolve_check",
+      "tx_hash": "0x3381b1869efb274e8ba49a27082c4dc4ee6898992e4fede7107994eefed27683",
+      "status_name": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "num_of_rounds": "1",
+      "created_at": "2026-09-30T06:38:48.494354+00:00",
+      "sender": "0x3de43AA2f7162c80af98abe78222aE0Cdf83c506",
+      "recipient": "0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1",
+      "value_atto": 0,
+      "votes": {
+        "0x36728d2a123aB444E603EE5b2ad17d18Bb193557": "agree",
+        "0x4404Fb70d490c935758146f42A73DC850FF95C71": "agree",
+        "0x5310dcF075E0BD47d29B8ec6581F736C767f54D2": "idle",
+        "0xDB1c35c1f05d885999b8f13e5735307BcC16Be88": "agree",
+        "0xec2Fb79cd12255Eb34886CEd7332f27B98DEe658": "idle"
+      },
+      "validator_executions": [
+        {
+          "mode": "leader",
+          "vote": null,
+          "node": "0xDB1c35c1f05d885999b8f13e5735307BcC16Be88",
+          "model": "openai/gpt-5.4"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0xDB1c35c1f05d885999b8f13e5735307BcC16Be88",
+          "model": "openai/gpt-5.4"
+        },
+        {
+          "mode": "validator",
+          "vote": "idle",
+          "node": "0x5310dcF075E0BD47d29B8ec6581F736C767f54D2",
+          "model": null
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x36728d2a123aB444E603EE5b2ad17d18Bb193557",
+          "model": "policy:prd-grok"
+        },
+        {
+          "mode": "validator",
+          "vote": "agree",
+          "node": "0x4404Fb70d490c935758146f42A73DC850FF95C71",
+          "model": "policy:prd-gemma"
+        },
+        {
+          "mode": "validator",
+          "vote": "idle",
+          "node": "0xec2Fb79cd12255Eb34886CEd7332f27B98DEe658",
+          "model": null
+        }
+      ],
+      "readable_result": "{\"args\":[\"1\",3],\"method\":\"resolve_check\"}"
+    }
+  ],
+  "checks": {
+    "compliant": {
+      "check_id": 1,
+      "verdict": "PASS",
+      "violated": [],
+      "rule_version": 1,
+      "status": "RESOLVED"
+    },
+    "violating": {
+      "check_id": 2,
+      "verdict": "FAIL",
+      "violated": [
+        0,
+        1,
+        2
+      ],
+      "rule_version": 1,
+      "status": "RESOLVED"
+    },
+    "injection": {
+      "check_id": 3,
+      "verdict": "FAIL",
+      "violated": [
+        1,
+        2
+      ],
+      "rule_version": 1,
+      "status": "RESOLVED"
+    }
+  },
+  "community_id": "1",
+  "community": {
+    "community_id": "1",
+    "created_at": "2026-09-30T06:33:47",
+    "current_version": 1,
+    "moderator": "0x0000000000000000000000000000000000000000",
+    "name": "Photo Club 1790750025",
+    "next_check_id": 1,
+    "owner": "0x3de43AA2f7162c80af98abe78222aE0Cdf83c506",
+    "result_validity_sec": 3600
+  }
+}

@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Secrets / local config
+.env
+.reporter_key
+*.key
+
+# GenVM / direct-mode caches (large, machine-local)
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Evidence scratch (JSON evidence is intentionally committed; raw logs are not)
+evidence/*.log
+*.tar.xz
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
