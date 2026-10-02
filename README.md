@@ -49,12 +49,27 @@ For each check (see `_consensus_eval` and the module-level pipeline in
    (`gl.vm.spawn_sandbox` + `gl.vm.unpack_result`) against the **actual post
    bytes**. The contract never evaluates the LLM's own claim about whether a check
    passed; it evaluates the generated expression. Before anything reaches the
-   sandbox a conservative static gate (`_is_safe_expression`) rejects dunder
-   access, imports, code-eval and IO calls, multi-statement payloads, and
-   over-long expressions; the sandboxed `eval` runs in a namespace exposing only
+   sandbox a two-layer static gate (`_is_safe_expression`) runs: a textual floor
+   (length cap 200, no newlines or semicolons, banned substrings such as dunder
+   access, `import`, `exec`, `eval`, `open`) plus a full AST allowlist. The
+   AST layer parses the expression as a single `eval`-mode expression (so
+   imports, assignments and multi-statement payloads cannot even parse), then
+   requires every node to be allowlisted, rejects any identifier starting with
+   an underscore, allows attribute access only as a call to an allowlisted
+   str/list method (bare reads like `text.__class__` are rejected), and allows
+   bare-name calls only for the exact builtins the eval namespace exposes:
    `len`, `str`, `int`, `float`, `any`, `all`, `sum`, `range`, `sorted`, `min`,
-   `max`, and `text`. The result per rule is `SATISFIED`, `VIOLATED`, or
+   `max`, over `text`. The sandboxed `eval` itself runs in a namespace with
+   nothing else. The result per rule is `SATISFIED`, `VIOLATED`, or
    `UNVERIFIABLE`.
+   Generated code is **never evaluated inline on the network**: if the sandbox
+   raises or yields no result, the check raises `[SANDBOX_ERROR]`, and a leader
+   that errors is validator disagreement (the validator already treats any
+   non-`Return` leader result as `False`) forcing rotation. The only inline
+   path is the module-level `_ALLOW_INLINE_EVAL` switch, which ships `False`
+   and is set `True` exclusively by the Direct Mode test harness around each
+   test (Direct Mode provides no isolated sandbox); a test pins that the
+   source on disk ships it disabled.
 3. **Judge only the residue.** Only rules the code could not decide (tagged
    subjective, or `UNVERIFIABLE`) go to a second LLM pass. That pass is fed the
    sandbox results as ground truth it is explicitly told not to override, and any
@@ -91,9 +106,9 @@ forcing rejection or rotation. A leader that returns unparseable JSON raises an
 disagreement, so a broken LLM response is never silently passed through
 (requirement 6).
 
-On the live run this is not theoretical: the `violating_resolve_check`
-transaction below settled `MAJORITY_AGREE` even though one validator voted
-`disagree`, because that validator's independent recomputation produced a
+On the live run this is not theoretical: the `compliant_resolve_check`
+transaction below settled `MAJORITY_AGREE` even though two validators voted
+`disagree`, because those validators' independent recomputations produced a
 different result and the ring reached a majority on the rest. A shape-only
 validator could never surface that.
 
@@ -203,13 +218,21 @@ errors.
 .venv/bin/python -m pytest tests/ -q
 ```
 
-14 tests, all green, covering: pass all rules; fail an objective rule with the
+22 tests, all green, covering: pass all rules; fail an objective rule with the
 specific rule identified; fail only the subjective rule; the prompt-injection
 attempt (ignored, the code-derived URL violation wins); two malformed-LLM-JSON
 cases (reject, never silently pass); the comparative validator rejecting both a
 wrong verdict and a wrong violated list; rule-set-size, post-length and
 validity-window floors and ceilings each asserting no state change; the
-unauthorized rule-update; and the in-flight snapshot race.
+unauthorized rule-update; the in-flight snapshot race; 20 hostile generated
+expressions (`__import__`, `open`, dunder chains, `getattr`, `eval`, lambda,
+multi-statement, over-cap length) each rejected by the gate and provably never
+reaching the evaluator (a spy on the evaluator shows it is entered only with
+the safe expression); a malicious rule failing closed to `VIOLATED`
+end-to-end; the fallback switch shipping disabled in the source on disk; and
+sandbox failure (raise and degraded-no-result) producing `[SANDBOX_ERROR]`
+with the evaluator never entered, including through the full `resolve_check`
+path leaving the check `PENDING`.
 
 ### What Direct Mode cannot prove
 
@@ -217,10 +240,15 @@ unauthorized rule-update; and the in-flight snapshot race.
   and captures the validator, so the comparative validator's *comparison logic* is
   exercised via `direct_vm.run_validator(...)`, but genuine leader/validator
   agreement across separate nodes is shown only by the live studionet run.
-- **True sandbox isolation.** `gl.vm.spawn_sandbox` is not isolated in Direct Mode
-  (the direct runner lacks `cloudpickle` and the mock sandbox call is a no-op), so
-  the contract falls back to the *identical inline deterministic evaluation*. The
-  computed values are the same; the isolation property itself is proven on-chain.
+- **True sandbox isolation.** `gl.vm.spawn_sandbox` is not available in Direct Mode
+  (the direct runner lacks `cloudpickle` and the sandbox call is a degraded
+  no-op), so the test harness flips the contract's module-level
+  `_ALLOW_INLINE_EVAL` switch to run the *identical inline deterministic
+  evaluation*, restoring `False` after each test. The computed values are the
+  same; the isolation property itself is proven on-chain. The switch ships
+  `False`, so a network run can never take the inline path: a network sandbox
+  failure raises `[SANDBOX_ERROR]` instead (pinned by direct-mode tests, one of
+  which reads the source file itself to prove the shipped default).
 - **Native payable enforcement.** Not applicable: this contract handles no native
   value, so there is nothing to enforce.
 
@@ -228,7 +256,7 @@ unauthorized rule-update; and the in-flight snapshot race.
 
 ```bash
 GENLAYER_RUN_INTEGRATION=1 \
-GENLAYER_CONTRACT_ADDRESS=0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1 \
+GENLAYER_CONTRACT_ADDRESS=0x50069Ee9DD456A410372326f6D92FDe2eEE5dBFB \
 .venv/bin/python -m pytest tests/test_integration_studionet.py -m integration -s
 ```
 
@@ -251,8 +279,8 @@ Exact commands:
 
 ```bash
 .venv/bin/python scripts/deploy_studionet.py
-.venv/bin/python scripts/e2e_studionet.py --contract 0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1
-.venv/bin/python scripts/verify_explorer.py    --contract 0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1
+.venv/bin/python scripts/e2e_studionet.py --contract 0x50069Ee9DD456A410372326f6D92FDe2eEE5dBFB
+.venv/bin/python scripts/verify_explorer.py    --contract 0x50069Ee9DD456A410372326f6D92FDe2eEE5dBFB
 ```
 
 Every transaction was verified independently against the explorer's JSON API
@@ -262,13 +290,17 @@ empty client-rendered shell, so no evidence here comes from the HTML.
 
 ### Deployed contract
 
-- Address: `0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1`
-- Explorer: https://explorer-studio.genlayer.com/address/0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1
-- Deploy tx: `0x726bab95baf57c602668abc8924df88573e4e1311a547e3317ebd0809a2ca3c4`
+- Address: `0x50069Ee9DD456A410372326f6D92FDe2eEE5dBFB`
+- Explorer: https://explorer-studio.genlayer.com/address/0x50069Ee9DD456A410372326f6D92FDe2eEE5dBFB
+- Deploy tx: `0xc2520c4a63e9238c75bdb23496145f51ef1f666c6413322c351e9585e6b95917`
   (FINALIZED, `MAJORITY_AGREE`)
 - Explorer re-read confirms `type == CONTRACT`, `tx_count == 8`, the on-chain
   source begins with the pinned runner header, and the deployed source equals this
-  repo's `contracts/contract.py` byte-for-byte.
+  repo's `contracts/contract.py` byte-for-byte (`deployed_source_equals_local_bytes`
+  is `true` in the explorer report).
+- The previous deployment `0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1` stays on
+  chain unchanged; this section describes the redeployed contract that carries
+  the inline-eval removal and the AST expression gate.
 
 ### Pipeline transactions (all FINALIZED, all `MAJORITY_AGREE`)
 
@@ -276,13 +308,13 @@ Community `1`, rule set: [max 280 chars, no URL, on topic].
 
 | Step | Tx hash | Result |
 | --- | --- | --- |
-| create_community | `0x1e8c6544a2f054b3cf6a641c4363ecc07afaf716a78d043c8e51b04d83e6f84b` | FINALIZED |
-| compliant submit_post | `0x17f77c23015f80e844ef46ad7f13919955463370849b2d10269bb9abd8f08d66` | FINALIZED |
-| compliant resolve_check | `0x6c234d01ff71d8ae9ef2919754c0e2f4e70e0c6c9ecc8c0574a414350b04fdde` | verdict `PASS`, violated `[]` |
-| violating submit_post | `0x417d93ad1849f52026e53e1eb9e3a47907fd764c0342a8b7a2938e84f4e37508` | FINALIZED |
-| violating resolve_check | `0xabea4c236d9fe2cca64de3da50c180394b94525f238bdb76dc63865225ebdfe1` | verdict `FAIL`, violated `[0, 1, 2]` (one validator voted `disagree`) |
-| injection submit_post | `0x24bada12da94b4d451c8f91324b18156c70cc1888a59486fd92dc933cc273288` | FINALIZED |
-| injection resolve_check | `0x3381b1869efb274e8ba49a27082c4dc4ee6898992e4fede7107994eefed27683` | verdict `FAIL`, violated `[1, 2]` |
+| create_community | `0x19578ab64ae87d2a18817e3728082e95f5cc27063b24f78f6c0ece1eac718bc1` | FINALIZED |
+| compliant submit_post | `0xd26e0fb35d9c3eec4226987abb7c4d366875f1fc3a7054959de9d0e9eb5763c2` | FINALIZED |
+| compliant resolve_check | `0x83248baab52be57c67f1529fd161dbd22d05398ce260b2cf27c42c49b5d0f4a1` | verdict `PASS`, violated `[]` (two validators voted `disagree`, ring still `MAJORITY_AGREE`) |
+| violating submit_post | `0x31050347345326626cb971dff160affda31dddbf1625ca6117e484415ed7a6e4` | FINALIZED |
+| violating resolve_check | `0xa40faf07f1fa92cf10850b49a8c620f71cda7fb183c63e42bce8a109efe237af` | verdict `FAIL`, violated `[0, 1, 2]` |
+| injection submit_post | `0x7eb244761369dc43d16aaaa4f70e1fa207dbc66cba54aa0b8afed6ef8c16b8e9` | FINALIZED |
+| injection resolve_check | `0xa7639125f0084eb0594cb5f7716fb448f414222889c1303276f539e0c300282f` | verdict `FAIL`, violated `[1, 2]` |
 
 Reading of the results:
 
@@ -316,8 +348,11 @@ Every one of these was discovered against the pinned, installed SDK, not assumed
    auto-parsed into a real `dict`, so `_coerce_json` accepts both `str` and
    `dict`/`list`.
 6. **`spawn_sandbox` in Direct Mode.** It is not available (missing `cloudpickle`,
-   degraded no-op handler returning `{"ok": None}`), so the contract detects the
-   degraded result and runs the identical deterministic evaluation inline.
+   degraded no-op handler whose unpack yields nothing). The contract therefore
+   inline-evaluates ONLY while the module-level `_ALLOW_INLINE_EVAL` harness
+   switch is set by the test suite; the shipped default is `False` and a
+   network-run sandbox failure raises `[SANDBOX_ERROR]` (validator
+   disagreement, never an inline eval).
 7. **Factory/child read timing** (relevant to sibling patterns): a parent being
    FINALIZED is not enough to read a factory-deployed child instantly; not needed
    here because this is a single contract with no child deploys.

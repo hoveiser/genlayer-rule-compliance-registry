@@ -4,10 +4,10 @@
     "chain_id": 61999
   },
   "deployer": "0x3de43AA2f7162c80af98abe78222aE0Cdf83c506",
-  "deploy_tx": "0x726bab95baf57c602668abc8924df88573e4e1311a547e3317ebd0809a2ca3c4",
-  "contract": "0xc764E6e9f64940E2122d8a7a3136A9458bF7c5D1",
+  "deploy_tx": "0xc2520c4a63e9238c75bdb23496145f51ef1f666c6413322c351e9585e6b95917",
+  "contract": "0x50069Ee9DD456A410372326f6D92FDe2eEE5dBFB",
   "explorer_type": "CONTRACT",
   "status_name": "FINALIZED",
   "result_name": "MAJORITY_AGREE",
-  "source_chars": 30997
+  "source_chars": 37537
 }

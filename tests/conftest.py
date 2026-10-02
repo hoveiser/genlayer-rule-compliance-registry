@@ -9,14 +9,51 @@
 #   * run_nondet_unsafe in direct mode runs ONLY leader_fn and captures the
 #     validator; the validator is exercised explicitly via direct_vm.run_validator(),
 #     and the runner bundle is resolved from the local cache (no network).
-#   * spawn_sandbox is NOT isolated in direct mode; the contract falls back to the
-#     identical inline deterministic evaluation, so verdicts are still ground truth.
+#   * spawn_sandbox is NOT available in direct mode (missing cloudpickle /
+#     degraded no-op handler). The contract then only runs the identical inline
+#     deterministic evaluation while the module-level _ALLOW_INLINE_EVAL harness
+#     switch is set; this conftest flips it around every deployed contract and
+#     restores False afterwards, mirroring the shipped default that a network
+#     run can never have.
 import json
+import os
 import re
+import sys
 
 import pytest
 
 from gltest.direct.loader import create_address
+
+
+def _patch_gltest_windows_temp_cleanup():
+    """Work around a gltest 0.29.2 bug on Windows (no product-code impact).
+
+    The direct-mode loader os.unlink()s its stdin temp file inside a finally
+    block while that fd is still attached to stdin; Windows rejects that with
+    PermissionError (ERROR_SHARING_VIOLATION), so EVERY direct-mode
+    transaction would error before ever reaching the contract. POSIX deletes
+    an open file fine, which is why upstream never noticed. The unlink cannot
+    be intercepted on the loader module (it imports os INSIDE the function),
+    so the patch sits on the os module itself and is deliberately minimal:
+    Windows-only, only the PermissionError of an unlink is swallowed (the
+    temp file is left for the OS to collect); every other call, argument and
+    exception is forwarded unchanged, and it is applied once per process.
+    """
+    if sys.platform != "win32" or getattr(os, "_gltest_win_unlink_patched", False):
+        return
+    real_unlink = os.unlink
+
+    def tolerant_unlink(path, *args, **kwargs):
+        try:
+            return real_unlink(path, *args, **kwargs)
+        except PermissionError:
+            return None
+
+    os.unlink = tolerant_unlink
+    os._gltest_win_unlink_patched = True
+
+
+_patch_gltest_windows_temp_cleanup()
 
 
 TRANSLATE_PATTERN = "compliance-rule compiler"
@@ -27,6 +64,14 @@ GEN_BASE_TS = "2026-01-01T00:00:00.000000Z"
 
 def addr(seed):
     return create_address(seed)
+
+
+def contract_module():
+    """The contract module instance direct_deploy loaded into sys.modules."""
+    for name, mod in list(sys.modules.items()):
+        if name.endswith("contract") and hasattr(mod, "_sandbox_eval"):
+            return mod
+    raise AssertionError("contract module was not loaded by direct_deploy")
 
 
 def _advance_iso(base, seconds):
@@ -123,11 +168,29 @@ class Controller:
 
 @pytest.fixture
 def registry(direct_vm, direct_deploy):
-    """Deploy the compliance registry with a fresh, time-pinned VM context."""
+    """Deploy the compliance registry with a fresh, time-pinned VM context.
+
+    Direct Mode has no isolated sandbox, so the harness flips the contract's
+    module-level _ALLOW_INLINE_EVAL switch for the duration of the test and
+    restores the shipped default (False) afterwards. A network run never has
+    the switch set: there a sandbox failure raises [SANDBOX_ERROR] instead of
+    ever evaluating generated expressions inline.
+    """
     c = direct_deploy("contracts/contract.py")
     import genlayer.gl as gl
 
     direct_vm._llm_mocks.clear()
-    ctrl = Controller(direct_vm, gl, c)
-    ctrl.set_time(GEN_BASE_TS)
-    return ctrl
+    mod = contract_module()
+    mod._ALLOW_INLINE_EVAL = True
+    try:
+        ctrl = Controller(direct_vm, gl, c)
+        ctrl.set_time(GEN_BASE_TS)
+        yield ctrl
+    finally:
+        mod._ALLOW_INLINE_EVAL = False
+
+
+@pytest.fixture
+def contract_mod(registry):
+    """The loaded contract module; depends on registry so it is deployed."""
+    return contract_module()
